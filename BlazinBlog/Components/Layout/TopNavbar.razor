@@ -1,41 +1,76 @@
-﻿<nav class="topnav navbar navbar-expand-lg navbar-light bg-white fixed-top">
-<div class="container">
-	<a class="navbar-brand" href="/"><strong>Blazing Blog</strong></a>
-		<button class="navbar-toggler collapsed" type="button" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation" onclick="toggleMenu(event)">
-	<span class="navbar-toggler-icon"></span>
-	</button>
-	<div class="navbar-collapse collapse" id="top-navbar-menu-wrapper" style="">
-		<ul class="navbar-nav mr-auto d-flex align-items-center">
-			<li class="nav-item">
-			<a class="nav-link" href="/">Intro <span class="sr-only">(current)</span></a>
-			</li>
-			<li class="nav-item">
-			<a class="nav-link" href="home">Culture</a>
-			</li>
-			<li class="nav-item">
-			<a class="nav-link" href="category">Tech</a>
-			</li>
-			<li class="nav-item">
-			<a class="nav-link" href="category">Politics</a>
-			</li>
-			<li class="nav-item">
-			<a class="nav-link" href="category">Health</a>
-			</li>
-			<li class="nav-item">
-			<a class="nav-link" href="category">Collections</a>
-			</li>            
-			<li class="nav-item">
-			<a class="nav-link" href="./about.html">About</a>
-			</li>
-			<li class="nav-item">
-			<a class="nav-link" href="./docs.html">Template <span class="badge badge-secondary">docs</span></a>
-			</li>
-		</ul>
-		<ul class="navbar-nav ml-auto d-flex align-items-center">
-			<li class="nav-item highlight">
-			<a class="nav-link" href="https://www.wowthemes.net/mundana-free-html-bootstrap-template/">Get this Theme</a>
-			</li>
-		</ul>
-	</div>
-</div>
+﻿@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using System.Security.Claims
+
+<nav class="topnav navbar navbar-expand-lg navbar-light bg-white fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="/"><strong>Blazing Blog</strong></a>
+        <button class="navbar-toggler collapsed" type="button" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation" onclick="toggleMenu(event)">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-collapse collapse" id="top-navbar-menu-wrapper" style="">
+            <ul class="navbar-nav mr-auto d-flex align-items-center">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Intro <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="home">Culture</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="category">Tech</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="category">Politics</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="category">Health</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="category">Collections</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto d-flex align-items-center">
+
+                <AuthorizeView>
+                    <Authorized>
+                        <li class="nav-item">
+                            <a class="nav-link" href="admin/dashboard">@name</a>
+                        </li>
+                        <li class="nav-item highlight">
+                            <form action="Account/Logout" method="post">
+                                <AntiforgeryToken />
+                                <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                                <button type="submit" class="nav-link">
+                                    <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
+                                </button>
+                            </form>
+                        </li>
+
+
+                    </Authorized>
+                    <Authorizing>
+
+                    </Authorizing>
+                    <NotAuthorized>
+                        <li class="nav-item highlight">
+                            <a class="nav-link" href="account/login">Login</a>
+                        </li>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </ul>
+        </div>
+    </div>
 </nav>
+@code {
+    private string currentUrl = string.Empty;
+
+    private string name = string.Empty;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.BaseUri);
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        name = user.FindFirst(AppConstants.ClaimNames.FullName)?.Value ?? string.Empty;
+    }
+}
