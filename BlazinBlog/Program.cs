@@ -1,6 +1,7 @@
 using BlazinBlog.Components;
 using BlazinBlog.Components.Account;
 using BlazinBlog.Data;
+using BlazinBlog.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -28,14 +29,18 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+builder.Services.AddTransient<ISeedService, SeedService>();
 
 var app = builder.Build();
+
+await SeedDatabaseAsync(app.Services);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -61,3 +66,12 @@ app.MapRazorComponents<App>()
 app.MapAdditionalIdentityEndpoints();
 
 app.Run();
+
+static async Task SeedDatabaseAsync(IServiceProvider services)
+{
+    using (var scope = services.CreateScope())
+    {
+        var seedService = scope.ServiceProvider.GetRequiredService<ISeedService>();
+        await seedService.SeedDataAsync();
+    }
+}
