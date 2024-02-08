@@ -1,13 +1,11 @@
 ﻿@inherits LayoutComponentBase
 @layout MainLayout
 
-@inject NavigationManager NavigationManager
-
 <AuthorizeView>
     <Authorized>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-3 bg-gray py-3">
+        <div class="container-fluid" >
+            <div class="row" >
+                <div class="col-sm-4 col-md-3 col-xl-2 col- bg-gray py-3" style="min-height:calc(100vh - 220px)">
 
                     <a class="text-center font-weight-bold">Welcome @context.User.GetUserName()</a>
 
@@ -17,28 +15,15 @@
                         <NavLink href="admin/manage-blog-posts" class="list-group-item list-group-item-action">Manage Blog Posts</NavLink>
                         <NavLink href="admin/manage-subscribers" class="list-group-item list-group-item-action">Manage Subscribes</NavLink>
                         <div class="list-group-item list-group-item-action">
-                            <form action="Account/Logout" method="post">
-                                <AntiforgeryToken />
-                                <input type="hidden" name="ReturnUrl" value="@relativeBaseUri" />
-                                <button type="submit" class="btn btn-link">Logout</button>
-                            </form>
+                          <LogoutForm ButtonClasses="btn btn-danger"/>
                         </div>
 
                     </div>
                 </div>
-                <div class="col-md-9">
+                <div class="col-md-9  col-xl-10 col-sm-8">
                     @Body
                 </div>
             </div>
         </div>
     </Authorized>
 </AuthorizeView>
-
-@code {
-    string relativeBaseUri = "";
-
-    protected override void OnInitialized()
-    {
-        relativeBaseUri = NavigationManager.ToBaseRelativePath(NavigationManager.BaseUri);
-    }
-}
