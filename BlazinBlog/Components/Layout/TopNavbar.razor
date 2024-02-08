@@ -37,13 +37,7 @@
                             <a class="nav-link" href="admin/dashboard">@name</a>
                         </li>
                         <li class="nav-item highlight">
-                            <form action="Account/Logout" method="post">
-                                <AntiforgeryToken />
-                                <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                                <button type="submit" class="nav-link">
-                                    <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
-                                </button>
-                            </form>
+                           <LogoutForm ButtonClasses="nav-link"/>
                         </li>
 
 
@@ -62,13 +56,10 @@
     </div>
 </nav>
 @code {
-    private string currentUrl = string.Empty;
-
     private string name = string.Empty;
     
     protected override async Task OnInitializedAsync()
     {
-        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.BaseUri);
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         name = user.FindFirst(AppConstants.ClaimNames.FullName)?.Value ?? string.Empty;
