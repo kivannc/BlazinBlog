@@ -12,6 +12,7 @@ public class Category
     public string Slug { get; set; }
     public bool ShowOnNavbar { get; set; }
 
+    public Category Clone() => (MemberwiseClone() as Category)!;
     public static Category[] GetSeedCategories()
     {
         return [
