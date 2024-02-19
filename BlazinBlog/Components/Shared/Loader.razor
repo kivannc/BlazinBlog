@@ -1,0 +1,27 @@
+<div class="overlay fullscreen-fixed"></div>
+<div class="fullscreen-fixed d-flex justify-content-center align-items-center">
+    <div class="bg-white p-3 rounded shadow-lg">
+        <span class="mn-0">@LoaderText</span>
+    </div>
+</div>
+
+<style type="text/css">
+    .fullscreen-fixed {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 9999;
+    }
+
+    .overlay {
+        background: black;
+        opacity: 0.5;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public string LoaderText { get; set; } = "Loading...";
+}
