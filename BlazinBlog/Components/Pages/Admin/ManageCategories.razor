@@ -4,6 +4,7 @@
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 @inject ICategoryService CategoryService
+@inject NavigationManager NavigationManager
 
 <AdminHeader Title="Manage Categories">
     <ActionButtons>
@@ -95,6 +96,7 @@
         category.ShowOnNavbar = !category.ShowOnNavbar;
         await CategoryService.SaveCategoryAsync(category);
         _isLoading = false;
+        NavigationManager.Refresh();
     }
 
     private void HandleEditCategory(Category category) => _selectedCategory = category.Clone();

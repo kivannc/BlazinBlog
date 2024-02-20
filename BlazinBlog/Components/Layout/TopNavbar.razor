@@ -2,32 +2,26 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @using System.Security.Claims
 
+@inject ICategoryService CategoryService
+
 <nav class="topnav navbar navbar-expand-lg navbar-light bg-white fixed-top">
     <div class="container">
         <a class="navbar-brand" href="/"><strong>Blazing Blog</strong></a>
-        <button class="navbar-toggler collapsed" type="button" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation" onclick="toggleMenu(event)">
+        <button class="navbar-toggler collapsed" type="button" aria-controls="navbarColor02" aria-expanded="false"
+            aria-label="Toggle navigation" onclick="toggleMenu(event)">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="navbar-collapse collapse" id="top-navbar-menu-wrapper" style="">
             <ul class="navbar-nav mr-auto d-flex align-items-center">
                 <li class="nav-item">
-                    <a class="nav-link" href="/">Intro <span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="home">Culture</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="category">Tech</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="category">Politics</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="category">Health</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="category">Collections</a>
-                </li>
+                @foreach (var category in _categories)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="@category.Slug">@category.Name</a>
+                    </li>
+                }
             </ul>
             <ul class="navbar-nav ml-auto d-flex align-items-center">
 
@@ -37,7 +31,7 @@
                             <a class="nav-link" href="admin/dashboard">@name</a>
                         </li>
                         <li class="nav-item highlight">
-                           <LogoutForm ButtonClasses="nav-link"/>
+                            <LogoutForm ButtonClasses="nav-link" />
                         </li>
 
 
@@ -56,12 +50,28 @@
     </div>
 </nav>
 @code {
+    private Category[] _categories = [];
+    private const int MaxCategoriesNumber = 5;
     private string name = string.Empty;
-    
+
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         name = user.FindFirst(AppConstants.ClaimNames.FullName)?.Value ?? string.Empty;
+
+        var categories = await CategoryService.GetCategoriesAsync();
+        _categories = categories
+        .Where(c => c.ShowOnNavbar)
+        .Take(MaxCategoriesNumber)
+        .ToArray();
+        if (_categories.Length < 5)
+        {
+            var moreCategories = categories
+            .Where(c => !c.ShowOnNavbar)
+            .Take(MaxCategoriesNumber - _categories.Length)
+            .ToArray();
+            _categories = [.. _categories, .. moreCategories];
+        }
     }
 }
